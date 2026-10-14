@@ -27,10 +27,14 @@
 
 ## 그냥 쓰고 싶은 사람 (설치 방법)
 
-1. https://github.com/cozyuj/windows-desktop-pet/releases/latest 접속
-2. **DesktopPet.exe** 클릭해서 다운로드
-3. 더블클릭 → "Windows의 PC 보호" 창이 뜨면 **추가 정보 → 실행**
-4. 바탕화면에 펫이 나타남. 우클릭으로 이미지 변경/설정/종료
+https://github.com/cozyuj/windows-desktop-pet/releases/latest 에서 둘 중 하나를 받습니다.
+
+- **DesktopPet-Setup.exe** (권장) : 설치 프로그램. 시작 메뉴 등록, 바탕화면 바로가기,
+  윈도우 시작 시 자동 실행 옵션, 제거 프로그램 포함. 관리자 권한 필요 없음.
+- **DesktopPet.exe** : 설치 없이 그냥 실행되는 단일 파일.
+
+더블클릭했을 때 "Windows의 PC 보호" 창이 뜨면 **추가 정보 → 실행** 을 누르세요.
+바탕화면에 펫이 나타나면 우클릭으로 이미지 변경/설정/종료할 수 있습니다.
 
 ## 윈도우에서 exe 만들기 (개발자용)
 
@@ -59,7 +63,8 @@ python desktop_pet.py
 
 ## 윈도우 시작 시 자동 실행
 
-`Win + R` → `shell:startup` → 열리는 폴더에 `DesktopPet.exe` 바로가기를 넣으면 됩니다.
+설치 프로그램에서 "윈도우 시작할 때 자동으로 실행" 을 체크하면 됩니다.
+단일 exe 를 쓰는 경우는 `Win + R` → `shell:startup` → 열리는 폴더에 `DesktopPet.exe` 바로가기를 넣으면 됩니다.
 
 ## 참고
 

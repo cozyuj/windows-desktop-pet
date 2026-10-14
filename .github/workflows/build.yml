@@ -41,11 +41,19 @@ jobs:
       - name: Copy quotes
         run: Copy-Item quotes.txt dist/quotes.txt
 
+      # Inno Setup 은 windows-latest 러너에 기본 설치되어 있다. 한국어 메시지 파일만 받아온다.
+      - name: Build installer (Inno Setup)
+        run: |
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Korean.isl" -OutFile installer/Korean.isl
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DAppVersion=1.0.${{ github.run_number }} installer\DesktopPet.iss
+          Get-ChildItem dist
+
       - uses: actions/upload-artifact@v4
         with:
           name: DesktopPet-windows
           path: |
             dist/DesktopPet.exe
+            dist/DesktopPet-Setup.exe
             dist/quotes.txt
 
       # push 할 때마다 Releases 페이지에 새 버전으로 올린다.
@@ -58,13 +66,20 @@ jobs:
           tag_name: v1.0.${{ github.run_number }}
           name: Desktop Pet v1.0.${{ github.run_number }}
           body: |
-            ## 설치 방법
-            1. 아래 **DesktopPet.exe** 를 클릭해 다운로드
-            2. 다운로드한 파일을 더블클릭
-            3. "Windows의 PC 보호" 파란 창이 뜨면 **추가 정보 → 실행** 클릭 (서명이 없어서 뜨는 경고입니다)
-            4. 바탕화면에 펫이 나타나면 우클릭해서 이미지를 바꾸거나 설정하세요
+            ## 설치 방법 (둘 중 하나)
 
-            `quotes.txt` 는 선택 사항입니다. exe 옆에 두면 말풍선 문구를 바꿀 수 있습니다.
+            **A. 설치 프로그램 (권장)**
+            1. 아래 **DesktopPet-Setup.exe** 다운로드 후 더블클릭
+            2. "Windows의 PC 보호" 파란 창이 뜨면 **추가 정보 → 실행** (서명이 없어서 뜨는 경고입니다)
+            3. 바탕화면 바로가기, 윈도우 시작 시 자동 실행을 원하면 체크하고 설치
+            4. 제거는 Windows 설정 → 앱 → Desktop Pet 에서
+
+            **B. 설치 없이 바로 실행**
+            - **DesktopPet.exe** 만 받아서 더블클릭
+
+            실행 후 펫을 우클릭하면 이미지 변경, 크기, 위치, 마우스 따라다니기, 종료를 할 수 있습니다.
+            `quotes.txt` 는 선택 사항이며 exe 옆에 두면 한마디 문구를 바꿀 수 있습니다.
           files: |
+            dist/DesktopPet-Setup.exe
             dist/DesktopPet.exe
             dist/quotes.txt
