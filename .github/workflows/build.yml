@@ -44,7 +44,7 @@ jobs:
       # Inno Setup 은 windows-latest 러너에 기본 설치되어 있다. 한국어 메시지 파일만 받아온다.
       - name: Build installer (Inno Setup)
         run: |
-          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Korean.isl" -OutFile installer/Korean.isl
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Korean.isl" -OutFile installer/Korean.isl
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DAppVersion=1.0.${{ github.run_number }} installer\DesktopPet.iss
           Get-ChildItem dist
 

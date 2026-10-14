@@ -33,7 +33,7 @@ set ISCC="%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
 if exist %ISCC% (
     echo [5/5] 설치 프로그램 빌드 ^(Inno Setup^)
     if not exist installer\Korean.isl (
-        curl -sL -o installer\Korean.isl https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/Korean.isl
+        curl -sL -o installer\Korean.isl https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Korean.isl
     )
     %ISCC% /DAppVersion=1.0.0 installer\DesktopPet.iss >nul && echo 설치 프로그램: dist\DesktopPet-Setup.exe
 ) else (
