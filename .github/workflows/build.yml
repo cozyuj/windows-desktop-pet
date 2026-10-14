@@ -5,6 +5,9 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -38,5 +41,26 @@ jobs:
         with:
           name: DesktopPet-windows
           path: |
+            dist/DesktopPet.exe
+            dist/quotes.txt
+
+      # push 할 때마다 Releases 페이지에 새 버전으로 올린다.
+      # 일반 사용자는 아래 주소에서 DesktopPet.exe 만 받으면 된다.
+      #   https://github.com/cozyuj/windows-desktop-pet/releases/latest
+      - name: Publish release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Desktop Pet v1.0.${{ github.run_number }}
+          body: |
+            ## 설치 방법
+            1. 아래 **DesktopPet.exe** 를 클릭해 다운로드
+            2. 다운로드한 파일을 더블클릭
+            3. "Windows의 PC 보호" 파란 창이 뜨면 **추가 정보 → 실행** 클릭 (서명이 없어서 뜨는 경고입니다)
+            4. 바탕화면에 펫이 나타나면 우클릭해서 이미지를 바꾸거나 설정하세요
+
+            `quotes.txt` 는 선택 사항입니다. exe 옆에 두면 말풍선 문구를 바꿀 수 있습니다.
+          files: |
             dist/DesktopPet.exe
             dist/quotes.txt

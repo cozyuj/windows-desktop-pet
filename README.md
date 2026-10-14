@@ -25,7 +25,14 @@
 마지막에 쓰던 이미지, 위치, 크기, 옵션은 `%APPDATA%\DesktopPet\config.json` 에 저장되어
 다음 실행 때 그대로 복원됩니다. exe 옆에 `quotes.txt` 를 두면 말풍선 문구를 바꿀 수 있습니다.
 
-## 윈도우에서 exe 만들기
+## 그냥 쓰고 싶은 사람 (설치 방법)
+
+1. https://github.com/cozyuj/windows-desktop-pet/releases/latest 접속
+2. **DesktopPet.exe** 클릭해서 다운로드
+3. 더블클릭 → "Windows의 PC 보호" 창이 뜨면 **추가 정보 → 실행**
+4. 바탕화면에 펫이 나타남. 우클릭으로 이미지 변경/설정/종료
+
+## 윈도우에서 exe 만들기 (개발자용)
 
 1. https://www.python.org 에서 Python 3.10 이상 설치 (기본 옵션이면 tkinter 포함)
 2. 이 폴더에서 `build.bat` 더블클릭
