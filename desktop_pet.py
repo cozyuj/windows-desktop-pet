@@ -118,7 +118,7 @@ class DesktopPet(tk.Tk):
         self.flip_var = tk.BooleanVar(value=False)
         self.bob_var = tk.BooleanVar(value=True)
         self.topmost_var = tk.BooleanVar(value=True)
-        self.talk_var = tk.BooleanVar(value=False)   # 클릭하면 한마디 (기본 꺼짐)
+        self.talk_var = tk.BooleanVar(value=True)    # 클릭하면 한마디
         self._bob_phase = 0.0
         self._bob_job = None
         self._follow_job = None
@@ -144,7 +144,7 @@ class DesktopPet(tk.Tk):
         self.bob_var.set(bool(cfg.get("bob", True)))
         self.follow_var.set(bool(cfg.get("follow", False)))
         self.topmost_var.set(bool(cfg.get("topmost", True)))
-        self.talk_var.set(bool(cfg.get("talk", False)))
+        self.talk_var.set(bool(cfg.get("talk", True)))
         self.wm_attributes("-topmost", self.topmost_var.get())
 
         img = cfg.get("image")
@@ -308,10 +308,34 @@ class DesktopPet(tk.Tk):
         self._anim_job = self.after(self.durations[self.frame_idx], self._next_frame)
 
     def choose_image(self):
-        path = filedialog.askopenfilename(
-            title="펫 이미지 선택",
-            filetypes=[("이미지", "*.png *.gif *.jpg *.jpeg *.webp *.bmp"), ("모든 파일", "*.*")],
-        )
+        # 우클릭 메뉴가 완전히 닫힌 뒤에 대화상자를 열어야 앞에 뜬다
+        self.after(120, self._open_file_dialog)
+
+    def _bring_to_front(self):
+        """맥에서는 우리 프로세스가 앞에 있지 않으면 파일 창이 다른 앱 뒤에 숨는다."""
+        if IS_MAC:
+            try:
+                import subprocess
+                subprocess.run(["osascript", "-e",
+                                'tell application "System Events" to set frontmost of '
+                                f'(first process whose unix id is {os.getpid()}) to true'],
+                               timeout=3, capture_output=True)
+            except Exception:
+                pass
+        self.lift()
+        self.update()
+
+    def _open_file_dialog(self):
+        self._bring_to_front()
+        self.wm_attributes("-topmost", False)
+        try:
+            path = filedialog.askopenfilename(
+                parent=self,
+                title="펫 이미지 선택",
+                filetypes=[("이미지", "*.png *.gif *.jpg *.jpeg *.webp *.bmp"), ("모든 파일", "*.*")],
+            )
+        finally:
+            self.wm_attributes("-topmost", self.topmost_var.get())
         if path and self._load_image(path):
             self._save_config()
 
@@ -357,7 +381,11 @@ class DesktopPet(tk.Tk):
         self._save_config()
 
     def ask_position(self):
+        self.after(120, self._ask_position_dialog)
+
+    def _ask_position_dialog(self):
         from tkinter import simpledialog
+        self._bring_to_front()
         sw, sh = self._screen_size()
         x = simpledialog.askinteger("위치 조정", f"X 좌표 (0 ~ {sw})", initialvalue=int(self.x), parent=self)
         if x is None:
@@ -478,14 +506,31 @@ class DesktopPet(tk.Tk):
         self._show_bubble(text)
 
     def _show_bubble(self, text: str, ms: int = 3500):
+        """상자 없이 텍스트만 띄운다. 어떤 배경에서도 읽히도록 어두운 외곽선을 깐다."""
         self._hide_bubble()
         b = tk.Toplevel(self)
         b.overrideredirect(True)
         b.wm_attributes("-topmost", True)
-        frame = tk.Frame(b, bg="#333333", padx=1, pady=1)
-        frame.pack()
-        tk.Label(frame, text=text, bg="#fffbe6", fg="#222222", font=("Malgun Gothic", 11),
-                 padx=12, pady=8, wraplength=260, justify="left").pack()
+        if IS_MAC:
+            b.wm_attributes("-transparent", True)
+            b.configure(bg="systemTransparent")
+        else:
+            b.configure(bg=KEY_COLOR)
+            b.wm_attributes("-transparentcolor", KEY_COLOR)
+
+        font = ("Malgun Gothic", 13, "bold") if IS_WINDOWS else ("Apple SD Gothic Neo", 15, "bold")
+        c = tk.Canvas(b, bg=self._bg_color(), highlightthickness=0, bd=0)
+        c.pack()
+        pad = 6
+        # 외곽선: 어두운 글자를 8방향으로 깔고, 그 위에 밝은 글자
+        for dx, dy in ((-1, -1), (1, -1), (-1, 1), (1, 1), (0, -1), (0, 1), (-1, 0), (1, 0)):
+            c.create_text(pad + dx, pad + dy, text=text, anchor="nw", font=font,
+                          fill="#222222", width=280)
+        c.create_text(pad, pad, text=text, anchor="nw", font=font, fill="#ffffff", width=280)
+        x0, y0, x1, y1 = c.bbox("all")
+        c.config(width=x1 - x0 + pad * 2, height=y1 - y0 + pad * 2)
+        c.move("all", pad - x0, pad - y0)
+
         self._bubble = b
         self._move_bubble()
         self._bubble_job = self.after(ms, self._hide_bubble)
@@ -498,10 +543,10 @@ class DesktopPet(tk.Tk):
         w, _ = self._win_size()
         sw, _ = self._screen_size()
         bx = int(self.x + w / 2 - bw / 2)
-        by = int(self.y - bh - 6)
+        by = int(self.y - bh - 2)
         bx = max(0, min(bx, sw - bw))
         if by < 0:
-            by = int(self.y + self._win_size()[1] + 6)
+            by = int(self.y + self._win_size()[1] + 2)
         self._bubble.geometry(f"+{bx}+{by}")
 
     def _hide_bubble(self):
