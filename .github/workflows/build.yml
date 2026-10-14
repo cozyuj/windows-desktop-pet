@@ -1,0 +1,42 @@
+name: Build Windows exe
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Generate assets
+        run: python make_assets.py
+
+      - name: Build exe
+        run: >
+          pyinstaller --noconfirm --clean --onefile --windowed
+          --name DesktopPet
+          --icon assets/pet.ico
+          --add-data "assets/pet.png;assets"
+          desktop_pet.py
+
+      - name: Copy quotes
+        run: Copy-Item quotes.txt dist/quotes.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DesktopPet-windows
+          path: |
+            dist/DesktopPet.exe
+            dist/quotes.txt
