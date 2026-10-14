@@ -40,4 +40,4 @@ if __name__ == "__main__":
     pet.save(os.path.join(OUT, "pet.png"))
     icon_sizes = [(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
     draw_pet(256).save(os.path.join(OUT, "pet.ico"), sizes=icon_sizes)
-    print("assets/pet.png, assets/pet.ico 생성 완료")
+    print("generated: assets/pet.png, assets/pet.ico")
