@@ -223,9 +223,10 @@ class DesktopPet(tk.Tk):
         c.bind("<ButtonPress-1>", self._on_press)
         c.bind("<B1-Motion>", self._on_drag)
         c.bind("<ButtonRelease-1>", self._on_release)
-        right = "<Button-2>" if IS_MAC else "<Button-3>"
-        c.bind(right, self._on_right_click)
+        # 우클릭: 윈도우/Tk9 맥은 Button-3, Tk8.6 맥은 Button-2 -> 맥은 둘 다 받는다
+        c.bind("<Button-3>", self._on_right_click)
         if IS_MAC:
+            c.bind("<Button-2>", self._on_right_click)
             c.bind("<Control-Button-1>", self._on_right_click)
         c.bind("<MouseWheel>", self._on_wheel)
         self.bind("<Escape>", lambda e: self.quit_app())
