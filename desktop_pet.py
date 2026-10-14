@@ -118,6 +118,7 @@ class DesktopPet(tk.Tk):
         self.flip_var = tk.BooleanVar(value=False)
         self.bob_var = tk.BooleanVar(value=True)
         self.topmost_var = tk.BooleanVar(value=True)
+        self.talk_var = tk.BooleanVar(value=False)   # 클릭하면 한마디 (기본 꺼짐)
         self._bob_phase = 0.0
         self._bob_job = None
         self._follow_job = None
@@ -143,6 +144,7 @@ class DesktopPet(tk.Tk):
         self.bob_var.set(bool(cfg.get("bob", True)))
         self.follow_var.set(bool(cfg.get("follow", False)))
         self.topmost_var.set(bool(cfg.get("topmost", True)))
+        self.talk_var.set(bool(cfg.get("talk", False)))
         self.wm_attributes("-topmost", self.topmost_var.get())
 
         img = cfg.get("image")
@@ -211,8 +213,8 @@ class DesktopPet(tk.Tk):
         m.add_checkbutton(label="좌우 반전", variable=self.flip_var, command=self._rebuild_frames)
         m.add_checkbutton(label="둥실둥실 효과", variable=self.bob_var, command=self.toggle_bob)
         m.add_checkbutton(label="항상 위에 표시", variable=self.topmost_var, command=self.toggle_topmost)
+        m.add_checkbutton(label="클릭하면 한마디", variable=self.talk_var, command=self._save_config)
         m.add_separator()
-        m.add_command(label="한마디 하기", command=self.say_something)
         m.add_command(label="종료", command=self.quit_app)
         self.menu = m
 
@@ -385,7 +387,7 @@ class DesktopPet(tk.Tk):
         self._move_bubble()
 
     def _on_release(self, e):
-        if self._drag_start and not self._drag_moved:
+        if self._drag_start and not self._drag_moved and self.talk_var.get():
             self.say_something()
         self._drag_start = None
         if self._drag_moved:
@@ -528,6 +530,7 @@ class DesktopPet(tk.Tk):
             "bob": self.bob_var.get(),
             "follow": self.follow_var.get(),
             "topmost": self.topmost_var.get(),
+            "talk": self.talk_var.get(),
         }
         try:
             with open(config_path(), "w", encoding="utf-8") as f:
